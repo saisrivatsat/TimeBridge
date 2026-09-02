@@ -61,12 +61,38 @@
             </label>
             <input id="date" type="date" />
           </div>
+
+          <div class="calculation-controls">
+            <p class="step-label">03 · Meeting fit</p>
+            <div class="calculation-grid">
+              <label for="duration">
+                <span>Meeting length</span>
+                <select id="duration">
+                  <option value="30">30 minutes</option>
+                  <option value="60" selected>1 hour</option>
+                  <option value="90">1.5 hours</option>
+                  <option value="120">2 hours</option>
+                </select>
+              </label>
+              <label for="search-days">
+                <span>Search ahead</span>
+                <select id="search-days">
+                  <option value="1">This day</option>
+                  <option value="7" selected>7 days</option>
+                  <option value="14">14 days</option>
+                </select>
+              </label>
+            </div>
+            <p class="control-note">
+              Recommendations maximize the smallest buffer between a meeting and anyone’s availability boundary.
+            </p>
+          </div>
         </div>
 
         <div class="planner-results">
           <div class="results-heading">
             <div>
-              <p class="step-label">03 · The overlap</p>
+              <p class="step-label">04 · The overlap</p>
               <h2>Shared daylight</h2>
             </div>
             <span id="result-summary" class="result-summary" aria-live="polite"></span>
@@ -81,8 +107,17 @@
           </div>
           <div id="timeline" class="timeline" aria-label="Twenty-four hour availability comparison"></div>
 
+          <div class="recommendations-heading">
+            <div>
+              <p class="step-label">Best-time calculator</p>
+              <h2>Fair picks</h2>
+            </div>
+            <p>Ranked so no one is needlessly pushed against the edge of their day.</p>
+          </div>
+          <div id="recommendations" class="recommendations" aria-live="polite"></div>
+
           <div class="suggestions-heading">
-            <h2>Windows that work</h2>
+            <h2>All windows on this day</h2>
             <p>Continuous periods when everyone is available.</p>
           </div>
           <div id="suggestions" class="suggestions"></div>

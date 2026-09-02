@@ -61,15 +61,32 @@ export function zonedDateTimeToUtc(dateString, timeZone, hour = 0) {
   return new Date(candidate);
 }
 
+export function addCalendarDays(dateString, days) {
+  const [year, month, day] = dateString.split("-").map(Number);
+  const next = new Date(Date.UTC(year, month - 1, day + Number(days)));
+  return [
+    next.getUTCFullYear(),
+    String(next.getUTCMonth() + 1).padStart(2, "0"),
+    String(next.getUTCDate()).padStart(2, "0"),
+  ].join("-");
+}
+
 export function buildTimeline(
   dateString,
   anchorTimeZone,
-  length = 48,
+  length,
   stepMinutes = 30,
 ) {
   const start = zonedDateTimeToUtc(dateString, anchorTimeZone);
+  const end = zonedDateTimeToUtc(
+    addCalendarDays(dateString, 1),
+    anchorTimeZone,
+  );
+  const slotCount = length ?? Math.round(
+    (end.getTime() - start.getTime()) / (stepMinutes * 60 * 1000),
+  );
   return Array.from(
-    { length },
+    { length: slotCount },
     (_, index) => new Date(start.getTime() + index * stepMinutes * 60 * 1000),
   );
 }
@@ -127,6 +144,86 @@ export function findSharedWindows(instants, locations) {
   }
 
   return windows;
+}
+
+function getAvailabilityMetrics(date, location, durationMinutes) {
+  const { hour, minute } = getZonedParts(date, location.timeZone);
+  const localMinutes = hour * 60 + minute;
+  const startMinutes = Number(location.startHour) * 60;
+  const rawDuration = (
+    Number(location.endHour) * 60 - startMinutes + 24 * 60
+  ) % (24 * 60);
+  const scheduleDuration = rawDuration || 24 * 60;
+  const elapsed = (localMinutes - startMinutes + 24 * 60) % (24 * 60);
+
+  if (elapsed >= scheduleDuration || elapsed + durationMinutes > scheduleDuration) {
+    return null;
+  }
+
+  return {
+    edgeBufferMinutes: Math.min(
+      elapsed,
+      scheduleDuration - elapsed - durationMinutes,
+    ),
+    centerDistanceMinutes: Math.abs(
+      elapsed + durationMinutes / 2 - scheduleDuration / 2,
+    ),
+  };
+}
+
+export function rankMeetingCandidates({
+  dateString,
+  anchorTimeZone,
+  locations,
+  durationMinutes,
+  searchDays = 1,
+  stepMinutes = 30,
+}) {
+  if (!locations.length || durationMinutes <= 0 || searchDays <= 0) return [];
+
+  const candidates = [];
+  const stepMilliseconds = stepMinutes * 60 * 1000;
+  const durationMilliseconds = durationMinutes * 60 * 1000;
+
+  for (let dayOffset = 0; dayOffset < searchDays; dayOffset += 1) {
+    const candidateDate = addCalendarDays(dateString, dayOffset);
+    const timeline = buildTimeline(candidateDate, anchorTimeZone, undefined, stepMinutes);
+    const windows = findSharedWindows(timeline, locations);
+
+    windows.forEach((window) => {
+      const latestStart = window.end.getTime() - durationMilliseconds;
+      for (
+        let startTime = window.start.getTime();
+        startTime <= latestStart;
+        startTime += stepMilliseconds
+      ) {
+        const start = new Date(startTime);
+        const metrics = locations.map((location) =>
+          getAvailabilityMetrics(start, location, durationMinutes),
+        );
+        if (metrics.some((metric) => metric === null)) continue;
+
+        candidates.push({
+          start,
+          end: new Date(startTime + durationMilliseconds),
+          durationMinutes,
+          minimumBufferMinutes: Math.min(
+            ...metrics.map(({ edgeBufferMinutes }) => edgeBufferMinutes),
+          ),
+          averageCenterDistanceMinutes: metrics.reduce(
+            (sum, { centerDistanceMinutes }) => sum + centerDistanceMinutes,
+            0,
+          ) / metrics.length,
+        });
+      }
+    });
+  }
+
+  return candidates.sort((first, second) =>
+    second.minimumBufferMinutes - first.minimumBufferMinutes
+    || first.averageCenterDistanceMinutes - second.averageCenterDistanceMinutes
+    || first.start.getTime() - second.start.getTime()
+  );
 }
 
 export function formatTime(date, timeZone) {

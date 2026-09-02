@@ -8,7 +8,11 @@ import {
   getZonedParts,
   isLocationAvailable,
   isValidTimeZone,
+  rankMeetingCandidates,
 } from "./time.js";
+
+const VALID_DURATIONS = [30, 60, 90, 120];
+const VALID_SEARCH_DAYS = [1, 7, 14];
 
 const DEFAULT_LOCATIONS = [
   {
@@ -29,11 +33,14 @@ const DEFAULT_LOCATIONS = [
 
 const elements = {
   date: document.querySelector("#date"),
+  duration: document.querySelector("#duration"),
+  searchDays: document.querySelector("#search-days"),
   locationList: document.querySelector("#location-list"),
   addLocation: document.querySelector("#add-location"),
   currentTimes: document.querySelector("#current-times"),
   timeline: document.querySelector("#timeline"),
   suggestions: document.querySelector("#suggestions"),
+  recommendations: document.querySelector("#recommendations"),
   resultSummary: document.querySelector("#result-summary"),
   share: document.querySelector("#share"),
   reset: document.querySelector("#reset"),
@@ -257,6 +264,99 @@ function getCurrentSlotIndex(instants) {
   );
 }
 
+function formatDuration(minutes) {
+  if (minutes < 60) return `${minutes} minutes`;
+  const hours = minutes / 60;
+  return `${hours} hour${hours === 1 ? "" : "s"}`;
+}
+
+function getComfortLabel(bufferMinutes) {
+  if (bufferMinutes >= 120) return "Very comfortable";
+  if (bufferMinutes >= 60) return "Comfortable";
+  if (bufferMinutes >= 30) return "Reasonable";
+  return "Tight fit";
+}
+
+function meetingSummary(candidate) {
+  const heading = `${formatDuration(candidate.durationMinutes)} meeting`;
+  const lines = locations.map((location) =>
+    `${location.name}: ${formatDay(candidate.start, location.timeZone)}, ${formatTime(candidate.start, location.timeZone)}–${formatTime(candidate.end, location.timeZone)}`,
+  );
+  return [heading, ...lines, "Planned with TimeBridge"].join("\n");
+}
+
+async function copyMeeting(candidate) {
+  const summary = meetingSummary(candidate);
+  try {
+    await navigator.clipboard.writeText(summary);
+    showToast("Meeting time copied.");
+  } catch {
+    window.prompt("Copy this meeting time:", summary);
+  }
+}
+
+function renderRecommendations(candidates) {
+  if (!candidates.length) {
+    const empty = document.createElement("div");
+    empty.className = "empty-state";
+    const heading = document.createElement("strong");
+    heading.textContent = "No meeting-length fit found.";
+    const guidance = document.createElement("span");
+    guidance.textContent = "Try a shorter meeting, a longer search, or wider availability.";
+    empty.append(heading, guidance);
+    elements.recommendations.replaceChildren(empty);
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+  candidates.slice(0, 4).forEach((candidate, index) => {
+    const card = document.createElement("article");
+    card.className = `recommendation-card ${index === 0 ? "is-best" : ""}`;
+
+    const header = document.createElement("div");
+    header.className = "recommendation-header";
+    const rank = document.createElement("span");
+    rank.className = "rank-badge";
+    rank.textContent = index === 0 ? "Most fair" : `Option ${index + 1}`;
+    const comfort = document.createElement("span");
+    comfort.className = "comfort-label";
+    comfort.textContent = getComfortLabel(candidate.minimumBufferMinutes);
+    header.append(rank, comfort);
+
+    const title = document.createElement("h3");
+    title.textContent = `${formatDay(candidate.start, locations[0].timeZone)} · ${formatTime(candidate.start, locations[0].timeZone)}`;
+    const explanation = document.createElement("p");
+    explanation.className = "fairness-explanation";
+    explanation.textContent = candidate.minimumBufferMinutes
+      ? `Everyone gets at least a ${candidate.minimumBufferMinutes}-minute buffer.`
+      : "This meeting fits exactly against someone’s availability boundary.";
+    card.append(header, title, explanation);
+
+    const times = document.createElement("div");
+    times.className = "recommendation-times";
+    locations.forEach((location) => {
+      const line = document.createElement("p");
+      const name = document.createElement("strong");
+      name.textContent = location.name;
+      const value = document.createElement("span");
+      value.textContent = `${formatDay(candidate.start, location.timeZone)}, ${formatTime(candidate.start, location.timeZone)}–${formatTime(candidate.end, location.timeZone)}`;
+      line.append(name, value);
+      times.append(line);
+    });
+    card.append(times);
+
+    const copy = document.createElement("button");
+    copy.className = "copy-time-button";
+    copy.type = "button";
+    copy.textContent = "Copy this time";
+    copy.addEventListener("click", () => copyMeeting(candidate));
+    card.append(copy);
+    fragment.append(card);
+  });
+
+  elements.recommendations.replaceChildren(fragment);
+}
+
 function renderSuggestions(windows) {
   if (!windows.length) {
     const empty = document.createElement("div");
@@ -302,8 +402,16 @@ function renderOutput() {
   const windows = findSharedWindows(instants, locations).sort(
     (first, second) => second.hours - first.hours,
   );
+  const candidates = rankMeetingCandidates({
+    dateString: elements.date.value,
+    anchorTimeZone: anchor,
+    locations,
+    durationMinutes: Number(elements.duration.value),
+    searchDays: Number(elements.searchDays.value),
+  });
   renderCurrentTimes();
   renderTimeline(instants);
+  renderRecommendations(candidates);
   renderSuggestions(windows);
 }
 
@@ -311,6 +419,8 @@ function syncUrl() {
   const url = new URL(window.location.href);
   url.search = "";
   url.searchParams.set("date", elements.date.value);
+  url.searchParams.set("duration", elements.duration.value);
+  url.searchParams.set("range", elements.searchDays.value);
   locations.forEach((location) => {
     url.searchParams.append(
       "place",
@@ -346,6 +456,8 @@ function resetPlanner() {
     id: crypto.randomUUID(),
   }));
   elements.date.value = localDateString();
+  elements.duration.value = "60";
+  elements.searchDays.value = "7";
   window.history.replaceState({}, "", window.location.pathname);
   renderLocationEditor();
   renderOutput();
@@ -358,8 +470,18 @@ function initialize() {
   elements.date.value = /^\d{4}-\d{2}-\d{2}$/.test(params.get("date"))
     ? params.get("date")
     : localDateString();
+  const requestedDuration = Number(params.get("duration"));
+  const requestedSearchDays = Number(params.get("range"));
+  elements.duration.value = String(
+    VALID_DURATIONS.includes(requestedDuration) ? requestedDuration : 60,
+  );
+  elements.searchDays.value = String(
+    VALID_SEARCH_DAYS.includes(requestedSearchDays) ? requestedSearchDays : 7,
+  );
 
   elements.date.addEventListener("change", renderOutput);
+  elements.duration.addEventListener("change", renderOutput);
+  elements.searchDays.addEventListener("change", renderOutput);
   elements.addLocation.addEventListener("click", () => {
     const detected = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
     locations.push({

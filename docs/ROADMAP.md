@@ -11,6 +11,9 @@ after its user problem and acceptance criteria are documented.
 - [x] Share a plan through the URL
 - [x] Add automated time-zone tests
 - [x] Use 30-minute precision for half-hour time zones
+- [x] Filter options by meeting length
+- [x] Rank fair start times across 1, 7, or 14 days
+- [x] Handle 23- and 25-hour daylight-saving transition days
 - [ ] Complete cross-browser and screen-reader checks
 - [ ] Publish the first Netlify deployment
 
