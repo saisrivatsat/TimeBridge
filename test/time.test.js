@@ -6,10 +6,13 @@ import {
   buildFairRotation,
   buildTimeline,
   findSharedWindows,
+  formatZoneAbbreviation,
+  getUtcOffsetMinutes,
   getZonedParts,
   isHourAvailable,
   isValidTimeZone,
   rankMeetingCandidates,
+  zonedLocalDateTimeToUtc,
   zonedDateTimeToUtc,
 } from "../src/time.js";
 
@@ -34,6 +37,27 @@ test("converts a zoned local midnight across daylight-saving time", () => {
   );
   assert.equal(chicagoMidnight.toISOString(), "2026-03-10T05:00:00.000Z");
   assert.equal(addCalendarDays("2026-02-28", 1), "2026-03-01");
+});
+
+test("converts a user-entered local time to a shared instant", () => {
+  const instant = zonedLocalDateTimeToUtc(
+    "2026-09-02T12:30",
+    "America/Chicago",
+  );
+
+  assert.equal(instant.toISOString(), "2026-09-02T17:30:00.000Z");
+  assert.equal(getZonedParts(instant, "Asia/Kolkata").hour, 23);
+  assert.equal(getZonedParts(instant, "Asia/Kolkata").minute, 0);
+});
+
+test("uses date-aware US abbreviations and UTC offsets", () => {
+  const summer = new Date("2026-07-01T12:00:00Z");
+  const winter = new Date("2026-01-01T12:00:00Z");
+
+  assert.equal(formatZoneAbbreviation(summer, "America/Chicago"), "CDT");
+  assert.equal(formatZoneAbbreviation(winter, "America/Chicago"), "CST");
+  assert.equal(getUtcOffsetMinutes(summer, "America/Chicago"), -300);
+  assert.equal(getUtcOffsetMinutes(winter, "America/Chicago"), -360);
 });
 
 test("builds a timeline anchored to the first location's calendar day", () => {

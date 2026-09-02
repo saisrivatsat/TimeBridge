@@ -11,6 +11,8 @@ wants to be contacted.
 - Families and friends living across countries
 - Distributed teams without a shared office schedule
 - Community organizers coordinating international volunteers
+- Travelers and immigrants translating everyday times between home and family
+- Students learning why civil time, UTC, and daylight saving exist
 
 ## Promise
 
@@ -19,6 +21,9 @@ window in under one minute, without requiring an account.
 
 ## Version 0.1 success criteria
 
+- A visitor can convert a local date and time using familiar city names.
+- A visitor can see live, date-aware abbreviations instead of fixed labels.
+- A visitor can create a world-clock set and inspect it as a visual timeline.
 - A visitor can add, edit, and remove locations.
 - A visitor can define preferred hours for every location.
 - A visitor can choose a meeting length and search horizon.
@@ -50,3 +55,4 @@ single meeting can be equally comfortable.
 - No calendar access
 - No server-side personal data
 - No dependency on proprietary time-zone APIs
+- Historical claims link to named institutional sources

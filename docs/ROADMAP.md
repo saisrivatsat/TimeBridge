@@ -16,6 +16,12 @@ after its user problem and acceptance criteria are documented.
 - [x] Handle 23- and 25-hour daylight-saving transition days
 - [x] Balance inconvenience across recurring weekly meetings
 - [x] Produce a copyable weekly rotation
+- [x] Separate simple and advanced tasks into focused navigation tabs
+- [x] Add plain-language time conversion with familiar city aliases
+- [x] Display date-aware standard/daylight abbreviations
+- [x] Add customizable live world clocks
+- [x] Visualize the next 24 hours across clock locations
+- [x] Publish a sourced time and time-zone knowledge base
 - [ ] Complete cross-browser and screen-reader checks
 - [ ] Publish the first Netlify deployment
 

@@ -2,12 +2,18 @@
 
 Find meeting and calling times that respect everyone's local schedule.
 
-TimeBridge compares a calendar day across up to six IANA time zones, highlights
-continuous overlaps, and produces a shareable plan. It runs entirely in the
-browser: no account, backend, analytics, or uploaded personal data.
+TimeBridge combines a simple time converter, live world clocks, a visual
+24-hour chart, a fair meeting planner, and a sourced time knowledge base. It
+runs entirely in the browser: no account, backend, analytics, or uploaded
+personal data.
 
 ## Features
 
+- Five focused views: Home, Calculator, World Clock, Visual Chart, and Learn
+- Plain-language “I’m here; what time is it there?” conversion
+- Live EST/EDT, CST/CDT, MST/MDT, and PST/PDT labels based on the actual date
+- Addable world clocks with local date, UTC offset, abbreviation, and day phase
+- A synchronized chart of the next 24 hours across selected locations
 - Current local time and UTC offset for every location
 - Personal availability windows, including overnight schedules
 - A visual 24-hour comparison anchored to the first location
@@ -61,6 +67,7 @@ No environment variables are required.
 
 - [Product brief](docs/PRODUCT.md)
 - [Roadmap](docs/ROADMAP.md)
+- [Knowledge-base sources](docs/KNOWLEDGE_SOURCES.md)
 - [Contributing guide](CONTRIBUTING.md)
 - [Security policy](SECURITY.md)
 

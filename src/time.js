@@ -39,9 +39,9 @@ export function getZonedParts(date, timeZone) {
   );
 }
 
-export function zonedDateTimeToUtc(dateString, timeZone, hour = 0) {
+export function zonedDateTimeToUtc(dateString, timeZone, hour = 0, minute = 0) {
   const [year, month, day] = dateString.split("-").map(Number);
-  const desired = Date.UTC(year, month - 1, day, hour, 0, 0);
+  const desired = Date.UTC(year, month - 1, day, hour, minute, 0);
   let candidate = desired;
 
   // Two passes account for offsets that differ near daylight-saving boundaries.
@@ -59,6 +59,12 @@ export function zonedDateTimeToUtc(dateString, timeZone, hour = 0) {
   }
 
   return new Date(candidate);
+}
+
+export function zonedLocalDateTimeToUtc(localDateTime, timeZone) {
+  const [dateString, timeString = "00:00"] = localDateTime.split("T");
+  const [hour, minute] = timeString.split(":").map(Number);
+  return zonedDateTimeToUtc(dateString, timeZone, hour, minute);
 }
 
 export function addCalendarDays(dateString, days) {
@@ -333,4 +339,32 @@ export function formatOffset(date, timeZone) {
   return getFormatter(timeZone, { timeZoneName: "shortOffset" })
     .formatToParts(date)
     .find(({ type }) => type === "timeZoneName")?.value;
+}
+
+export function formatZoneAbbreviation(date, timeZone) {
+  return getFormatter(timeZone, { timeZoneName: "short" })
+    .formatToParts(date)
+    .find(({ type }) => type === "timeZoneName")?.value;
+}
+
+export function formatFullDate(date, timeZone) {
+  return getFormatter(timeZone, {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  }).format(date);
+}
+
+export function getUtcOffsetMinutes(date, timeZone) {
+  const parts = getZonedParts(date, timeZone);
+  const representedAsUtc = Date.UTC(
+    parts.year,
+    parts.month - 1,
+    parts.day,
+    parts.hour,
+    parts.minute,
+    parts.second,
+  );
+  return Math.round((representedAsUtc - date.getTime()) / (60 * 1000));
 }

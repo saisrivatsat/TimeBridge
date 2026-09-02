@@ -6,158 +6,335 @@
     <meta name="theme-color" content="#f6f3ed" />
     <meta
       name="description"
-      content="Find humane meeting and calling times across time zones. No sign-up, no tracking."
+      content="Convert time, compare world clocks, find fair meeting hours, and learn how time zones work."
     />
-    <meta property="og:title" content="TimeBridge — find time that feels right for everyone" />
+    <meta property="og:title" content="TimeBridge — understand time anywhere" />
     <meta
       property="og:description"
-      content="Compare local hours, spot overlaps, and share a plan without creating an account."
+      content="A private, open-source world clock, time converter, fair meeting planner, and time knowledge base."
     />
-    <title>TimeBridge — humane time-zone planning</title>
+    <title>TimeBridge — understand time anywhere</title>
     <link rel="stylesheet" href="./styles.css" />
     <script type="module" src="./src/app.js"></script>
+    <script type="module" src="./src/explorer.js"></script>
   </head>
   <body>
-    <a class="skip-link" href="#planner">Skip to planner</a>
+    <a class="skip-link" href="#app-content">Skip to content</a>
     <header class="site-header">
-      <a class="brand" href="./" aria-label="TimeBridge home">
+      <a class="brand" href="#home" aria-label="TimeBridge home">
         <span class="brand-mark" aria-hidden="true"><i></i><i></i></span>
         <span>TimeBridge</span>
       </a>
+
+      <nav class="main-nav" role="tablist" aria-label="TimeBridge sections">
+        <a href="#home" role="tab" data-route="home">Home</a>
+        <a href="#calculator" role="tab" data-route="calculator">Calculator</a>
+        <a href="#clocks" role="tab" data-route="clocks">World clock</a>
+        <a href="#chart" role="tab" data-route="chart">Visual chart</a>
+        <a href="#learn" role="tab" data-route="learn">Learn</a>
+      </nav>
+
       <a class="github-link" href="https://github.com/saisrivatsat/timebridge" target="_blank" rel="noreferrer">
-        Open source <span aria-hidden="true">↗</span>
+        GitHub <span aria-hidden="true">↗</span>
       </a>
     </header>
 
-    <main id="planner">
-      <section class="hero" aria-labelledby="hero-title">
-        <p class="eyebrow">Time zones, made considerate</p>
-        <h1 id="hero-title">Find a time that feels<br />right for <em>everyone.</em></h1>
-        <p class="hero-copy">
-          Compare local hours, respect personal schedules, and share a plan—without an account.
-        </p>
-      </section>
+    <main id="app-content">
+      <section class="app-page home-page" data-page="home" role="tabpanel" aria-label="Home">
+        <div class="hero home-hero">
+          <p class="eyebrow">One world · many local times</p>
+          <h1>Time anywhere,<br /><em>without the math.</em></h1>
+          <p class="hero-copy">
+            Check the time there, understand the label, and find a considerate hour to connect.
+          </p>
+        </div>
 
-      <section class="planner-shell" aria-label="Time overlap planner">
-        <div class="planner-controls">
-          <div class="section-heading">
-            <div>
-              <p class="step-label">01 · People & places</p>
-              <h2>Who’s finding time?</h2>
-            </div>
-            <button id="reset" class="text-button" type="button">Reset</button>
+        <section class="quick-converter" aria-labelledby="quick-title">
+          <div class="quick-copy">
+            <p class="step-label">Quick answer</p>
+            <h2 id="quick-title">I’m here. What time is it there?</h2>
+            <p>Choose two locations. TimeBridge handles the date, offset, and daylight-saving label.</p>
           </div>
-
-          <div id="location-list" class="location-list"></div>
-          <datalist id="timezone-options"></datalist>
-          <button id="add-location" class="add-button" type="button">
-            <span aria-hidden="true">+</span> Add another location
-          </button>
-
-          <div class="date-control">
-            <label for="date">
-              <span class="step-label">02 · Date</span>
-              <strong>Choose a day</strong>
+          <div class="quick-form">
+            <label for="quick-from-zone">
+              <span>I am in</span>
+              <input id="quick-from-zone" list="friendly-timezones" placeholder="Choose a city or time zone" />
             </label>
-            <input id="date" type="date" />
+            <button id="swap-quick-zones" class="swap-button" type="button" aria-label="Swap locations">⇄</button>
+            <label for="quick-to-zone">
+              <span>I need the time in</span>
+              <input id="quick-to-zone" list="friendly-timezones" placeholder="Choose a city or time zone" />
+            </label>
+            <label class="quick-datetime" for="quick-datetime">
+              <span>When</span>
+              <input id="quick-datetime" type="datetime-local" />
+            </label>
+            <button id="convert-time" class="primary-button" type="button">Convert time</button>
           </div>
+          <div id="quick-result" class="quick-result" aria-live="polite"></div>
+        </section>
 
-          <div class="calculation-controls">
-            <p class="step-label">03 · Meeting fit</p>
-            <div class="calculation-grid">
-              <label for="duration">
-                <span>Meeting length</span>
-                <select id="duration">
-                  <option value="30">30 minutes</option>
-                  <option value="60" selected>1 hour</option>
-                  <option value="90">1.5 hours</option>
-                  <option value="120">2 hours</option>
-                </select>
-              </label>
-              <label for="search-days">
-                <span>Search ahead</span>
-                <select id="search-days">
-                  <option value="1">This day</option>
-                  <option value="7" selected>7 days</option>
-                  <option value="14">14 days</option>
-                </select>
-              </label>
-              <label class="wide-control" for="occurrences">
-                <span>Weekly fairness rotation</span>
-                <select id="occurrences">
-                  <option value="4" selected>Plan 4 meetings</option>
-                  <option value="8">Plan 8 meetings</option>
-                  <option value="12">Plan 12 meetings</option>
-                </select>
-              </label>
+        <section class="us-now" aria-labelledby="us-now-title">
+          <div class="page-heading compact-heading">
+            <div>
+              <p class="eyebrow">Live United States snapshot</p>
+              <h2 id="us-now-title">EST or EDT? CST or CDT?</h2>
             </div>
-            <p class="control-note">
-              Recommendations maximize the smallest buffer between a meeting and anyone’s availability boundary.
-            </p>
+            <p>The label changes automatically with the selected date and daylight-saving rules.</p>
           </div>
+          <div id="us-clock-strip" class="us-clock-strip"></div>
+        </section>
+
+        <section class="principles" aria-label="Product principles">
+          <article><span>◷</span><h3>Live and date-aware</h3><p>Abbreviations and UTC offsets follow the actual date.</p></article>
+          <article><span>◇</span><h3>Privacy-first</h3><p>Calculations stay in your browser with no account or tracking.</p></article>
+          <article><span>⌁</span><h3>Globally useful</h3><p>Uses standard IANA zones instead of ambiguous fixed offsets.</p></article>
+        </section>
+      </section>
+
+      <section class="app-page" data-page="calculator" role="tabpanel" aria-label="Meeting calculator" hidden>
+        <div class="page-heading">
+          <div>
+            <p class="eyebrow">Meeting calculator</p>
+            <h1>Find time that is fair.</h1>
+          </div>
+          <p>Compare availability, calculate exact meeting fits, and rotate recurring inconvenience.</p>
         </div>
 
-        <div class="planner-results">
-          <div class="results-heading">
-            <div>
-              <p class="step-label">04 · The overlap</p>
-              <h2>Shared daylight</h2>
-            </div>
-            <span id="result-summary" class="result-summary" aria-live="polite"></span>
-          </div>
-
-          <div id="current-times" class="current-times" aria-label="Current local times"></div>
-
-          <div class="timeline-key" aria-hidden="true">
-            <span><i class="key-dot muted"></i> Outside preferred hours</span>
-            <span><i class="key-dot available"></i> Available</span>
-            <span><i class="key-dot shared"></i> Shared</span>
-          </div>
-          <div id="timeline" class="timeline" aria-label="Twenty-four hour availability comparison"></div>
-
-          <div class="recommendations-heading">
-            <div>
-              <p class="step-label">Best-time calculator</p>
-              <h2>Fair picks</h2>
-            </div>
-            <p>Ranked so no one is needlessly pushed against the edge of their day.</p>
-          </div>
-          <div id="recommendations" class="recommendations" aria-live="polite"></div>
-
-          <section class="rotation-section" aria-labelledby="rotation-title">
-            <div class="rotation-heading">
+        <section class="planner-shell" aria-label="Time overlap planner">
+          <div class="planner-controls">
+            <div class="section-heading">
               <div>
-                <p class="step-label">Recurring meetings</p>
-                <h2 id="rotation-title">Share the inconvenience</h2>
+                <p class="step-label">01 · People & places</p>
+                <h2>Who’s finding time?</h2>
               </div>
-              <span id="rotation-summary" class="rotation-summary"></span>
+              <button id="reset" class="text-button" type="button">Reset</button>
             </div>
-            <p class="rotation-copy">
-              Each week is selected against everyone’s cumulative schedule burden, so the same person does not always absorb the difficult hour.
-            </p>
-            <div id="rotation-list" class="rotation-list" aria-live="polite"></div>
-            <button id="copy-rotation" class="secondary-button" type="button">
-              Copy weekly rotation
+
+            <div id="location-list" class="location-list"></div>
+            <datalist id="timezone-options"></datalist>
+            <button id="add-location" class="add-button" type="button">
+              <span aria-hidden="true">+</span> Add another location
             </button>
-          </section>
 
-          <div class="suggestions-heading">
-            <h2>All windows on this day</h2>
-            <p>Continuous periods when everyone is available.</p>
+            <div class="date-control">
+              <label for="date">
+                <span class="step-label">02 · Date</span>
+                <strong>Choose a day</strong>
+              </label>
+              <input id="date" type="date" />
+            </div>
+
+            <div class="calculation-controls">
+              <p class="step-label">03 · Meeting fit</p>
+              <div class="calculation-grid">
+                <label for="duration">
+                  <span>Meeting length</span>
+                  <select id="duration">
+                    <option value="30">30 minutes</option>
+                    <option value="60" selected>1 hour</option>
+                    <option value="90">1.5 hours</option>
+                    <option value="120">2 hours</option>
+                  </select>
+                </label>
+                <label for="search-days">
+                  <span>Search ahead</span>
+                  <select id="search-days">
+                    <option value="1">This day</option>
+                    <option value="7" selected>7 days</option>
+                    <option value="14">14 days</option>
+                  </select>
+                </label>
+                <label class="wide-control" for="occurrences">
+                  <span>Weekly fairness rotation</span>
+                  <select id="occurrences">
+                    <option value="4" selected>Plan 4 meetings</option>
+                    <option value="8">Plan 8 meetings</option>
+                    <option value="12">Plan 12 meetings</option>
+                  </select>
+                </label>
+              </div>
+              <p class="control-note">
+                Recommendations maximize the smallest buffer between a meeting and anyone’s availability boundary.
+              </p>
+            </div>
           </div>
-          <div id="suggestions" class="suggestions"></div>
 
-          <button id="share" class="share-button" type="button">
-            Copy shareable plan <span aria-hidden="true">↗</span>
-          </button>
+          <div class="planner-results">
+            <div class="results-heading">
+              <div>
+                <p class="step-label">04 · The overlap</p>
+                <h2>Shared daylight</h2>
+              </div>
+              <span id="result-summary" class="result-summary" aria-live="polite"></span>
+            </div>
+
+            <div id="current-times" class="current-times" aria-label="Current local times"></div>
+
+            <div class="timeline-key" aria-hidden="true">
+              <span><i class="key-dot muted"></i> Outside preferred hours</span>
+              <span><i class="key-dot available"></i> Available</span>
+              <span><i class="key-dot shared"></i> Shared</span>
+            </div>
+            <div id="timeline" class="timeline" aria-label="Availability comparison"></div>
+
+            <div class="recommendations-heading">
+              <div>
+                <p class="step-label">Best-time calculator</p>
+                <h2>Fair picks</h2>
+              </div>
+              <p>Ranked so no one is needlessly pushed against the edge of their day.</p>
+            </div>
+            <div id="recommendations" class="recommendations" aria-live="polite"></div>
+
+            <section class="rotation-section" aria-labelledby="rotation-title">
+              <div class="rotation-heading">
+                <div>
+                  <p class="step-label">Recurring meetings</p>
+                  <h2 id="rotation-title">Share the inconvenience</h2>
+                </div>
+                <span id="rotation-summary" class="rotation-summary"></span>
+              </div>
+              <p class="rotation-copy">
+                Each week is selected against everyone’s cumulative schedule burden.
+              </p>
+              <div id="rotation-list" class="rotation-list" aria-live="polite"></div>
+              <button id="copy-rotation" class="secondary-button" type="button">Copy weekly rotation</button>
+            </section>
+
+            <div class="suggestions-heading">
+              <h2>All windows on this day</h2>
+              <p>Continuous periods when everyone is available.</p>
+            </div>
+            <div id="suggestions" class="suggestions"></div>
+
+            <button id="share" class="share-button" type="button">
+              Copy shareable plan <span aria-hidden="true">↗</span>
+            </button>
+          </div>
+        </section>
+      </section>
+
+      <section class="app-page" data-page="clocks" role="tabpanel" aria-label="World clock" hidden>
+        <div class="page-heading">
+          <div>
+            <p class="eyebrow">Live world clock</p>
+            <h1>Now, around the world.</h1>
+          </div>
+          <p>Every label is calculated live. A city may show CST in winter and CDT in summer.</p>
         </div>
+
+        <div class="clock-toolbar">
+          <label for="world-zone">
+            <span>Add a city or time zone</span>
+            <input id="world-zone" list="friendly-timezones" placeholder="Try London, Tokyo, or America/Denver" />
+          </label>
+          <button id="add-world-clock" class="primary-button" type="button">Add clock</button>
+        </div>
+        <div id="world-clock-grid" class="world-clock-grid" aria-live="polite"></div>
       </section>
 
-      <section class="principles" aria-label="Product principles">
-        <article><span>◷</span><h3>Daylight-aware</h3><p>See each person’s actual local date and time.</p></article>
-        <article><span>◇</span><h3>Privacy-first</h3><p>Your plan stays in the browser and shareable URL.</p></article>
-        <article><span>⌁</span><h3>Globally useful</h3><p>Built on standard IANA time zones with DST support.</p></article>
+      <section class="app-page" data-page="chart" role="tabpanel" aria-label="Visual time chart" hidden>
+        <div class="page-heading">
+          <div>
+            <p class="eyebrow">Live visual chart</p>
+            <h1>See the next 24 hours.</h1>
+          </div>
+          <p>Your world-clock locations become a shared chart of night, working time, and evening.</p>
+        </div>
+        <div class="live-chart-legend" aria-hidden="true">
+          <span><i class="chart-key night"></i> Night</span>
+          <span><i class="chart-key morning"></i> Morning / evening</span>
+          <span><i class="chart-key work"></i> Typical work hours</span>
+          <span><i class="chart-key now"></i> Now</span>
+        </div>
+        <div id="live-chart" class="live-chart" aria-label="Next 24 hours across selected locations"></div>
+        <p class="chart-note">Typical work hours are shown as 9:00 a.m.–5:00 p.m. local time for orientation only.</p>
       </section>
+
+      <section class="app-page" data-page="learn" role="tabpanel" aria-label="Time knowledge base" hidden>
+        <div class="page-heading">
+          <div>
+            <p class="eyebrow">Knowledge base</p>
+            <h1>Why time works this way.</h1>
+          </div>
+          <p>No single person invented time. People gradually invented ways to observe, divide, standardize, and synchronize it.</p>
+        </div>
+
+        <div class="knowledge-grid">
+          <article>
+            <span class="knowledge-number">01</span>
+            <h2>What is time?</h2>
+            <p>Time is not a clock. A clock counts a repeating process—such as a pendulum, quartz vibration, or atomic transition—and displays the accumulated intervals.</p>
+            <a href="https://www.nist.gov/pml/time-and-frequency-division/timekeeping-and-clocks-faqs" target="_blank" rel="noreferrer">NIST explanation ↗</a>
+          </article>
+          <article>
+            <span class="knowledge-number">02</span>
+            <h2>What is a time zone?</h2>
+            <p>A time zone is a set of civil-time rules: its offset from UTC, its boundaries, and any seasonal changes. Governments choose these rules, so borders do not follow longitude perfectly.</p>
+            <a href="https://www.iana.org/time-zones/tz-link" target="_blank" rel="noreferrer">IANA time-zone data ↗</a>
+          </article>
+          <article>
+            <span class="knowledge-number">03</span>
+            <h2>What is daylight saving?</h2>
+            <p>DST advances local clocks for part of the year. Rules differ by place and can change. In the U.S., participating areas currently move forward on the second Sunday in March and back on the first Sunday in November.</p>
+            <a href="https://www.nist.gov/pml/time-and-frequency-division/local-time-faqs" target="_blank" rel="noreferrer">NIST local-time FAQ ↗</a>
+          </article>
+          <article>
+            <span class="knowledge-number">04</span>
+            <h2>What is the reference?</h2>
+            <p>UTC is today’s international reference time scale. Civil time zones are expressed as offsets from it. UTC is produced from atomic-clock data and kept close to Earth-rotation time.</p>
+            <a href="https://www.bipm.org/en/time-metrology" target="_blank" rel="noreferrer">BIPM time metrology ↗</a>
+          </article>
+        </div>
+
+        <section class="history-section" aria-labelledby="history-title">
+          <div class="section-intro">
+            <p class="eyebrow">A short history</p>
+            <h2 id="history-title">From shadows to atomic time</h2>
+          </div>
+          <ol class="history-timeline">
+            <li><time>c. 3500 BCE</time><div><h3>Shadows divide the day</h3><p>Egyptian obelisks used moving shadows to separate morning and afternoon.</p></div></li>
+            <li><time>c. 1500 BCE</time><div><h3>Portable sundials and water clocks</h3><p>Early devices made timekeeping useful away from a single monument and after sunset.</p></div></li>
+            <li><time>14th century</time><div><h3>Public mechanical clocks</h3><p>Large weight-driven clocks began appearing in European city towers.</p></div></li>
+            <li><time>November 18, 1883</time><div><h3>North American railway time</h3><p>Railroads adopted standard regional times to replace dozens of conflicting local sun times.</p></div></li>
+            <li><time>1884</time><div><h3>Greenwich becomes the common meridian</h3><p>An international conference selected Greenwich as zero longitude and recommended a universal day.</p></div></li>
+            <li><time>1918</time><div><h3>U.S. federal standard time</h3><p>The Standard Time Act established federal oversight of time-zone boundaries.</p></div></li>
+            <li><time>1967</time><div><h3>The atomic second</h3><p>The SI second was defined using a transition of the cesium-133 atom instead of Earth’s variable rotation.</p></div></li>
+            <li><time>Today</time><div><h3>UTC and the IANA database</h3><p>Atomic laboratories coordinate UTC while the IANA database records changing civil-time rules used by computers.</p></div></li>
+          </ol>
+        </section>
+
+        <section class="abbreviation-section" aria-labelledby="abbreviation-title">
+          <div class="section-intro">
+            <p class="eyebrow">Decode the labels</p>
+            <h2 id="abbreviation-title">ET is safer than always saying EST</h2>
+            <p>“Standard” and “daylight” labels depend on the date. The generic family label avoids promising the wrong seasonal offset.</p>
+          </div>
+          <div class="abbreviation-table" role="table" aria-label="United States time abbreviations">
+            <div role="row"><strong role="cell">Eastern</strong><span role="cell">ET</span><span role="cell">EST · UTC−5</span><span role="cell">EDT · UTC−4</span></div>
+            <div role="row"><strong role="cell">Central</strong><span role="cell">CT</span><span role="cell">CST · UTC−6</span><span role="cell">CDT · UTC−5</span></div>
+            <div role="row"><strong role="cell">Mountain</strong><span role="cell">MT</span><span role="cell">MST · UTC−7</span><span role="cell">MDT · UTC−6</span></div>
+            <div role="row"><strong role="cell">Pacific</strong><span role="cell">PT</span><span role="cell">PST · UTC−8</span><span role="cell">PDT · UTC−7</span></div>
+          </div>
+          <p class="abbreviation-note">Abbreviations are not globally unique—CST can refer to Central Standard Time or China Standard Time. TimeBridge calculates with region/city identifiers such as <code>America/Chicago</code>.</p>
+          <a class="source-link" href="https://www.nist.gov/pml/time-and-frequency-division/local-time-faqs" target="_blank" rel="noreferrer">Source: NIST Local Time FAQs ↗</a>
+        </section>
+
+        <section class="references" aria-labelledby="references-title">
+          <h2 id="references-title">Primary references</h2>
+          <div>
+            <a href="https://www.nist.gov/pml/time-and-frequency-division/popular-links/walk-through-time/walk-through-time-early-clocks" target="_blank" rel="noreferrer">NIST · Early clocks</a>
+            <a href="https://guides.loc.gov/this-month-in-business-history/november/day-of-two-noons" target="_blank" rel="noreferrer">Library of Congress · Day of Two Noons</a>
+            <a href="https://www.transportation.gov/regulations/time-act" target="_blank" rel="noreferrer">U.S. DOT · Uniform Time</a>
+            <a href="https://www.rmg.co.uk/stories/time/what-prime-meridian-why-it-greenwich" target="_blank" rel="noreferrer">Royal Museums Greenwich · Prime Meridian</a>
+            <a href="https://www.bipm.org/en/time-metrology" target="_blank" rel="noreferrer">BIPM · UTC</a>
+            <a href="https://www.iana.org/time-zones/tz-link" target="_blank" rel="noreferrer">IANA · Time Zone Database</a>
+          </div>
+        </section>
+      </section>
+
+      <datalist id="friendly-timezones"></datalist>
     </main>
 
     <footer>
