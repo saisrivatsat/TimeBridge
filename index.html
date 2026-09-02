@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f6f3ed" />
+    <meta
+      name="description"
+      content="Find humane meeting and calling times across time zones. No sign-up, no tracking."
+    />
+    <meta property="og:title" content="TimeBridge — find time that feels right for everyone" />
+    <meta
+      property="og:description"
+      content="Compare local hours, spot overlaps, and share a plan without creating an account."
+    />
+    <title>TimeBridge — humane time-zone planning</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script type="module" src="./src/app.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#planner">Skip to planner</a>
+    <header class="site-header">
+      <a class="brand" href="./" aria-label="TimeBridge home">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i></span>
+        <span>TimeBridge</span>
+      </a>
+      <a class="github-link" href="https://github.com/saisrivatsat/timebridge" target="_blank" rel="noreferrer">
+        Open source <span aria-hidden="true">↗</span>
+      </a>
+    </header>
+
+    <main id="planner">
+      <section class="hero" aria-labelledby="hero-title">
+        <p class="eyebrow">Time zones, made considerate</p>
+        <h1 id="hero-title">Find a time that feels<br />right for <em>everyone.</em></h1>
+        <p class="hero-copy">
+          Compare local hours, respect personal schedules, and share a plan—without an account.
+        </p>
+      </section>
+
+      <section class="planner-shell" aria-label="Time overlap planner">
+        <div class="planner-controls">
+          <div class="section-heading">
+            <div>
+              <p class="step-label">01 · People & places</p>
+              <h2>Who’s finding time?</h2>
+            </div>
+            <button id="reset" class="text-button" type="button">Reset</button>
+          </div>
+
+          <div id="location-list" class="location-list"></div>
+          <datalist id="timezone-options"></datalist>
+          <button id="add-location" class="add-button" type="button">
+            <span aria-hidden="true">+</span> Add another location
+          </button>
+
+          <div class="date-control">
+            <label for="date">
+              <span class="step-label">02 · Date</span>
+              <strong>Choose a day</strong>
+            </label>
+            <input id="date" type="date" />
+          </div>
+        </div>
+
+        <div class="planner-results">
+          <div class="results-heading">
+            <div>
+              <p class="step-label">03 · The overlap</p>
+              <h2>Shared daylight</h2>
+            </div>
+            <span id="result-summary" class="result-summary" aria-live="polite"></span>
+          </div>
+
+          <div id="current-times" class="current-times" aria-label="Current local times"></div>
+
+          <div class="timeline-key" aria-hidden="true">
+            <span><i class="key-dot muted"></i> Outside preferred hours</span>
+            <span><i class="key-dot available"></i> Available</span>
+            <span><i class="key-dot shared"></i> Shared</span>
+          </div>
+          <div id="timeline" class="timeline" aria-label="Twenty-four hour availability comparison"></div>
+
+          <div class="suggestions-heading">
+            <h2>Windows that work</h2>
+            <p>Continuous periods when everyone is available.</p>
+          </div>
+          <div id="suggestions" class="suggestions"></div>
+
+          <button id="share" class="share-button" type="button">
+            Copy shareable plan <span aria-hidden="true">↗</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="principles" aria-label="Product principles">
+        <article><span>◷</span><h3>Daylight-aware</h3><p>See each person’s actual local date and time.</p></article>
+        <article><span>◇</span><h3>Privacy-first</h3><p>Your plan stays in the browser and shareable URL.</p></article>
+        <article><span>⌁</span><h3>Globally useful</h3><p>Built on standard IANA time zones with DST support.</p></article>
+      </section>
+    </main>
+
+    <footer>
+      <p>Built thoughtfully for people living across clocks.</p>
+      <p>No tracking · No sign-up · Open source</p>
+    </footer>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>

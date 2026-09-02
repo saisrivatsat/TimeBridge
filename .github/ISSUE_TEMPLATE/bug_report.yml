@@ -1,0 +1,32 @@
+name: Bug report
+description: Report something that is incorrect or broken
+title: "Bug: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thank you for helping improve TimeBridge. Do not include private information.
+  - type: textarea
+    id: behavior
+    attributes:
+      label: What happened?
+      description: Include the date, time zones, availability, and result you saw.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and device
+      placeholder: Safari on iPhone
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+    validations:
+      required: true
