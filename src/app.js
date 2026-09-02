@@ -1,4 +1,5 @@
 import {
+  buildFairRotation,
   buildTimeline,
   findSharedWindows,
   formatDay,
@@ -13,6 +14,7 @@ import {
 
 const VALID_DURATIONS = [30, 60, 90, 120];
 const VALID_SEARCH_DAYS = [1, 7, 14];
+const VALID_OCCURRENCES = [4, 8, 12];
 
 const DEFAULT_LOCATIONS = [
   {
@@ -35,12 +37,16 @@ const elements = {
   date: document.querySelector("#date"),
   duration: document.querySelector("#duration"),
   searchDays: document.querySelector("#search-days"),
+  occurrences: document.querySelector("#occurrences"),
   locationList: document.querySelector("#location-list"),
   addLocation: document.querySelector("#add-location"),
   currentTimes: document.querySelector("#current-times"),
   timeline: document.querySelector("#timeline"),
   suggestions: document.querySelector("#suggestions"),
   recommendations: document.querySelector("#recommendations"),
+  rotationList: document.querySelector("#rotation-list"),
+  rotationSummary: document.querySelector("#rotation-summary"),
+  copyRotation: document.querySelector("#copy-rotation"),
   resultSummary: document.querySelector("#result-summary"),
   share: document.querySelector("#share"),
   reset: document.querySelector("#reset"),
@@ -50,6 +56,7 @@ const elements = {
 
 let locations = loadLocationsFromUrl();
 let toastTimer;
+let latestRotation;
 
 function localDateString(date = new Date()) {
   const year = date.getFullYear();
@@ -357,6 +364,96 @@ function renderRecommendations(candidates) {
   elements.recommendations.replaceChildren(fragment);
 }
 
+function renderRotation(rotation) {
+  latestRotation = rotation;
+  const { meetings, participantBurdenTotals, unavailableDates } = rotation;
+  const highestBurden = participantBurdenTotals.length
+    ? Math.max(...participantBurdenTotals)
+    : 0;
+  const lowestBurden = participantBurdenTotals.length
+    ? Math.min(...participantBurdenTotals)
+    : 0;
+  const burdenGap = Math.round(highestBurden - lowestBurden);
+  elements.rotationSummary.textContent = `${meetings.length} scheduled · ${burdenGap}-min burden gap`;
+
+  if (!meetings.length) {
+    const empty = document.createElement("div");
+    empty.className = "empty-state";
+    const heading = document.createElement("strong");
+    heading.textContent = "No weekly rotation fits these schedules.";
+    const guidance = document.createElement("span");
+    guidance.textContent = "Shorten the meeting or widen at least one availability window.";
+    empty.append(heading, guidance);
+    elements.rotationList.replaceChildren(empty);
+    elements.copyRotation.disabled = true;
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+  meetings.forEach((meeting) => {
+    const row = document.createElement("article");
+    row.className = "rotation-row";
+
+    const badge = document.createElement("span");
+    badge.className = "week-badge";
+    badge.textContent = `Week ${meeting.occurrence}`;
+
+    const primary = document.createElement("div");
+    primary.className = "rotation-primary";
+    const title = document.createElement("strong");
+    title.textContent = formatDay(meeting.start, locations[0].timeZone);
+    const time = document.createElement("span");
+    time.textContent = `${formatTime(meeting.start, locations[0].timeZone)}–${formatTime(meeting.end, locations[0].timeZone)} ${locations[0].name}`;
+    primary.append(title, time);
+
+    const localTimes = document.createElement("div");
+    localTimes.className = "rotation-local-times";
+    locations.slice(1).forEach((location) => {
+      const value = document.createElement("span");
+      value.textContent = `${formatTime(meeting.start, location.timeZone)} ${location.name}`;
+      localTimes.append(value);
+    });
+
+    row.append(badge, primary, localTimes);
+    fragment.append(row);
+  });
+
+  if (unavailableDates.length) {
+    const warning = document.createElement("p");
+    warning.className = "rotation-warning";
+    warning.textContent = `${unavailableDates.length} week${unavailableDates.length === 1 ? "" : "s"} could not be scheduled.`;
+    fragment.append(warning);
+  }
+
+  elements.rotationList.replaceChildren(fragment);
+  elements.copyRotation.disabled = false;
+}
+
+async function copyWeeklyRotation() {
+  if (!latestRotation?.meetings.length) return;
+
+  const lines = [
+    `TimeBridge weekly rotation · ${formatDuration(Number(elements.duration.value))} each`,
+    "",
+  ];
+  latestRotation.meetings.forEach((meeting) => {
+    lines.push(`Week ${meeting.occurrence}`);
+    locations.forEach((location) => {
+      lines.push(
+        `${location.name}: ${formatDay(meeting.start, location.timeZone)}, ${formatTime(meeting.start, location.timeZone)}–${formatTime(meeting.end, location.timeZone)}`,
+      );
+    });
+    lines.push("");
+  });
+
+  try {
+    await navigator.clipboard.writeText(lines.join("\n").trim());
+    showToast("Weekly rotation copied.");
+  } catch {
+    window.prompt("Copy this weekly rotation:", lines.join("\n").trim());
+  }
+}
+
 function renderSuggestions(windows) {
   if (!windows.length) {
     const empty = document.createElement("div");
@@ -409,9 +506,17 @@ function renderOutput() {
     durationMinutes: Number(elements.duration.value),
     searchDays: Number(elements.searchDays.value),
   });
+  const rotation = buildFairRotation({
+    dateString: elements.date.value,
+    anchorTimeZone: anchor,
+    locations,
+    durationMinutes: Number(elements.duration.value),
+    occurrences: Number(elements.occurrences.value),
+  });
   renderCurrentTimes();
   renderTimeline(instants);
   renderRecommendations(candidates);
+  renderRotation(rotation);
   renderSuggestions(windows);
 }
 
@@ -421,6 +526,7 @@ function syncUrl() {
   url.searchParams.set("date", elements.date.value);
   url.searchParams.set("duration", elements.duration.value);
   url.searchParams.set("range", elements.searchDays.value);
+  url.searchParams.set("occurrences", elements.occurrences.value);
   locations.forEach((location) => {
     url.searchParams.append(
       "place",
@@ -458,6 +564,7 @@ function resetPlanner() {
   elements.date.value = localDateString();
   elements.duration.value = "60";
   elements.searchDays.value = "7";
+  elements.occurrences.value = "4";
   window.history.replaceState({}, "", window.location.pathname);
   renderLocationEditor();
   renderOutput();
@@ -472,16 +579,21 @@ function initialize() {
     : localDateString();
   const requestedDuration = Number(params.get("duration"));
   const requestedSearchDays = Number(params.get("range"));
+  const requestedOccurrences = Number(params.get("occurrences"));
   elements.duration.value = String(
     VALID_DURATIONS.includes(requestedDuration) ? requestedDuration : 60,
   );
   elements.searchDays.value = String(
     VALID_SEARCH_DAYS.includes(requestedSearchDays) ? requestedSearchDays : 7,
   );
+  elements.occurrences.value = String(
+    VALID_OCCURRENCES.includes(requestedOccurrences) ? requestedOccurrences : 4,
+  );
 
   elements.date.addEventListener("change", renderOutput);
   elements.duration.addEventListener("change", renderOutput);
   elements.searchDays.addEventListener("change", renderOutput);
+  elements.occurrences.addEventListener("change", renderOutput);
   elements.addLocation.addEventListener("click", () => {
     const detected = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
     locations.push({
@@ -495,6 +607,7 @@ function initialize() {
     renderOutput();
   });
   elements.share.addEventListener("click", sharePlan);
+  elements.copyRotation.addEventListener("click", copyWeeklyRotation);
   elements.reset.addEventListener("click", resetPlanner);
 
   renderLocationEditor();

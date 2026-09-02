@@ -23,6 +23,7 @@ window in under one minute, without requiring an account.
 - A visitor can define preferred hours for every location.
 - A visitor can choose a meeting length and search horizon.
 - Suggested start times prioritize the least-comfortable participant's buffer.
+- A visitor can generate and copy a weekly schedule that rotates inconvenience.
 - Calculations remain correct across daylight-saving changes and half-hour zones.
 - A visitor can copy a URL that recreates the plan.
 - The core workflow works on a 320-pixel-wide screen and with a keyboard.
@@ -36,6 +37,12 @@ then by average distance from schedule centers, and finally by time.
 
 The score is deliberately explainable. It is not a claim that the highest-ranked
 time is universally best; it offers a fair default that people can discuss.
+
+For weekly rotations, each person's distance from the center of their preferred
+schedule is accumulated across meetings. The next occurrence minimizes the
+largest projected total, followed by the difference between the highest and
+lowest totals. This shares inconvenience over time without pretending every
+single meeting can be equally comfortable.
 
 ## Deliberate constraints
 

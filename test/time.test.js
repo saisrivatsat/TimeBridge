@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 
 import {
   addCalendarDays,
+  buildFairRotation,
   buildTimeline,
   findSharedWindows,
   getZonedParts,
@@ -117,4 +118,39 @@ test("finds fair one-hour options across Chicago and Hyderabad", () => {
   assert.ok(candidates.length > 7);
   assert.equal(candidates[0].minimumBufferMinutes, 60);
   assert.equal(candidates.every(({ durationMinutes }) => durationMinutes === 60), true);
+});
+
+test("rotates recurring meetings to balance cumulative inconvenience", () => {
+  const locations = [
+    {
+      timeZone: "America/Chicago",
+      startHour: 8,
+      endHour: 22,
+    },
+    {
+      timeZone: "Asia/Kolkata",
+      startHour: 8,
+      endHour: 22,
+    },
+  ];
+  const rotation = buildFairRotation({
+    dateString: "2026-09-02",
+    anchorTimeZone: "America/Chicago",
+    locations,
+    durationMinutes: 60,
+    occurrences: 4,
+  });
+  const chicagoStartTimes = new Set(
+    rotation.meetings.map(({ start }) => {
+      const { hour, minute } = getZonedParts(start, "America/Chicago");
+      return `${hour}:${minute}`;
+    }),
+  );
+  const highestBurden = Math.max(...rotation.participantBurdenTotals);
+  const lowestBurden = Math.min(...rotation.participantBurdenTotals);
+
+  assert.equal(rotation.meetings.length, 4);
+  assert.equal(rotation.unavailableDates.length, 0);
+  assert.ok(chicagoStartTimes.size >= 2);
+  assert.ok(highestBurden - lowestBurden <= 60);
 });

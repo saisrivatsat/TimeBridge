@@ -82,6 +82,14 @@
                   <option value="14">14 days</option>
                 </select>
               </label>
+              <label class="wide-control" for="occurrences">
+                <span>Weekly fairness rotation</span>
+                <select id="occurrences">
+                  <option value="4" selected>Plan 4 meetings</option>
+                  <option value="8">Plan 8 meetings</option>
+                  <option value="12">Plan 12 meetings</option>
+                </select>
+              </label>
             </div>
             <p class="control-note">
               Recommendations maximize the smallest buffer between a meeting and anyone’s availability boundary.
@@ -115,6 +123,23 @@
             <p>Ranked so no one is needlessly pushed against the edge of their day.</p>
           </div>
           <div id="recommendations" class="recommendations" aria-live="polite"></div>
+
+          <section class="rotation-section" aria-labelledby="rotation-title">
+            <div class="rotation-heading">
+              <div>
+                <p class="step-label">Recurring meetings</p>
+                <h2 id="rotation-title">Share the inconvenience</h2>
+              </div>
+              <span id="rotation-summary" class="rotation-summary"></span>
+            </div>
+            <p class="rotation-copy">
+              Each week is selected against everyone’s cumulative schedule burden, so the same person does not always absorb the difficult hour.
+            </p>
+            <div id="rotation-list" class="rotation-list" aria-live="polite"></div>
+            <button id="copy-rotation" class="secondary-button" type="button">
+              Copy weekly rotation
+            </button>
+          </section>
 
           <div class="suggestions-heading">
             <h2>All windows on this day</h2>

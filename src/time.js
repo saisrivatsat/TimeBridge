@@ -207,6 +207,9 @@ export function rankMeetingCandidates({
           start,
           end: new Date(startTime + durationMilliseconds),
           durationMinutes,
+          participantBurdenMinutes: metrics.map(
+            ({ centerDistanceMinutes }) => centerDistanceMinutes,
+          ),
           minimumBufferMinutes: Math.min(
             ...metrics.map(({ edgeBufferMinutes }) => edgeBufferMinutes),
           ),
@@ -224,6 +227,78 @@ export function rankMeetingCandidates({
     || first.averageCenterDistanceMinutes - second.averageCenterDistanceMinutes
     || first.start.getTime() - second.start.getTime()
   );
+}
+
+export function buildFairRotation({
+  dateString,
+  anchorTimeZone,
+  locations,
+  durationMinutes,
+  occurrences = 4,
+}) {
+  if (!locations.length || occurrences <= 0) {
+    return {
+      meetings: [],
+      participantBurdenTotals: locations.map(() => 0),
+      unavailableDates: [],
+    };
+  }
+
+  let participantBurdenTotals = locations.map(() => 0);
+  const meetings = [];
+  const unavailableDates = [];
+
+  for (let index = 0; index < occurrences; index += 1) {
+    const occurrenceDate = addCalendarDays(dateString, index * 7);
+    const candidates = rankMeetingCandidates({
+      dateString: occurrenceDate,
+      anchorTimeZone,
+      locations,
+      durationMinutes,
+      searchDays: 1,
+    });
+
+    if (!candidates.length) {
+      unavailableDates.push(occurrenceDate);
+      continue;
+    }
+
+    const evaluated = candidates.map((candidate) => {
+      const projectedTotals = participantBurdenTotals.map(
+        (total, participantIndex) =>
+          total + candidate.participantBurdenMinutes[participantIndex],
+      );
+      const maximum = Math.max(...projectedTotals);
+      const minimum = Math.min(...projectedTotals);
+      return {
+        candidate,
+        projectedTotals,
+        maximum,
+        spread: maximum - minimum,
+        sum: projectedTotals.reduce((total, burden) => total + burden, 0),
+      };
+    });
+
+    evaluated.sort((first, second) =>
+      first.maximum - second.maximum
+      || first.spread - second.spread
+      || first.sum - second.sum
+      || second.candidate.minimumBufferMinutes
+        - first.candidate.minimumBufferMinutes
+      || first.candidate.start.getTime() - second.candidate.start.getTime()
+    );
+
+    const selected = evaluated[0];
+    participantBurdenTotals = selected.projectedTotals;
+    meetings.push({
+      ...selected.candidate,
+      occurrence: index + 1,
+      occurrenceDate,
+      cumulativeBurdenMinutes: [...participantBurdenTotals],
+    });
+  }
+
+  return { meetings, participantBurdenTotals, unavailableDates };
 }
 
 export function formatTime(date, timeZone) {

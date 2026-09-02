@@ -14,6 +14,8 @@ after its user problem and acceptance criteria are documented.
 - [x] Filter options by meeting length
 - [x] Rank fair start times across 1, 7, or 14 days
 - [x] Handle 23- and 25-hour daylight-saving transition days
+- [x] Balance inconvenience across recurring weekly meetings
+- [x] Produce a copyable weekly rotation
 - [ ] Complete cross-browser and screen-reader checks
 - [ ] Publish the first Netlify deployment
 

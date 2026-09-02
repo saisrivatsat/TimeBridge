@@ -13,6 +13,7 @@ browser: no account, backend, analytics, or uploaded personal data.
 - A visual 24-hour comparison anchored to the first location
 - Meeting-length filtering for 30-, 60-, 90-, and 120-minute calls
 - Fair-time ranking across the next 1, 7, or 14 days
+- Weekly fairness rotations for 4, 8, or 12 recurring meetings
 - Daylight-saving-aware calculations using the browser's `Intl` API
 - Shareable plans encoded in the URL
 - Responsive, keyboard-friendly interface
@@ -26,6 +27,11 @@ the smallest buffer between the meeting and anyone's availability boundary.
 That max-min approach avoids improving one person's time by pushing somebody
 else against the beginning or end of their day. Ties favor options closest to
 the centers of everyone's schedules, followed by the earlier date.
+
+For recurring meetings, TimeBridge carries each participant's inconvenience
+forward from week to week. Every new choice minimizes the highest projected
+cumulative burden, then the gap between participants. This naturally rotates
+early and late calls when schedules allow it.
 
 ## Run locally
 
