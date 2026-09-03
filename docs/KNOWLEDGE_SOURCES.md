@@ -1,6 +1,6 @@
 # Knowledge-base sources
 
-TimeBridge's Learn tab is introductory, not exhaustive. Its historical and
+TimeBridge Link's Learn tab is introductory, not exhaustive. Its historical and
 technical statements are paraphrased from the institutions below.
 
 ## Measuring time

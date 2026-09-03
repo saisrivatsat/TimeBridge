@@ -1,4 +1,4 @@
-# Contributing to TimeBridge
+# Contributing to TimeBridge Link
 
 Thank you for helping make cross-time-zone planning more considerate.
 

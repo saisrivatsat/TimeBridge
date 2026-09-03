@@ -1,9 +1,9 @@
 {
   "name": "timebridge",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
-  "description": "Find humane meeting and calling times across time zones.",
+  "description": "See your local time, compare the world, and plan humane meetings across time zones.",
   "scripts": {
     "build": "node scripts/build.mjs",
     "check": "node --check src/app.js && node --check src/explorer.js && node --check src/time.js",

@@ -8,12 +8,14 @@
       name="description"
       content="Convert time, compare world clocks, find fair meeting hours, and learn how time zones work."
     />
-    <meta property="og:title" content="TimeBridge — understand time anywhere" />
+    <meta property="og:title" content="TimeBridge Link — understand time anywhere" />
     <meta
       property="og:description"
       content="A private, open-source world clock, time converter, fair meeting planner, and time knowledge base."
     />
-    <title>TimeBridge — understand time anywhere</title>
+    <meta property="og:url" content="https://timebridgelink.netlify.app/" />
+    <link rel="canonical" href="https://timebridgelink.netlify.app/" />
+    <title>TimeBridge Link — understand time anywhere</title>
     <link rel="stylesheet" href="./styles.css" />
     <script type="module" src="./src/app.js"></script>
     <script type="module" src="./src/explorer.js"></script>
@@ -21,12 +23,12 @@
   <body>
     <a class="skip-link" href="#app-content">Skip to content</a>
     <header class="site-header">
-      <a class="brand" href="#home" aria-label="TimeBridge home">
+      <a class="brand" href="#home" aria-label="TimeBridge Link home">
         <span class="brand-mark" aria-hidden="true"><i></i><i></i></span>
-        <span>TimeBridge</span>
+        <span>TimeBridge Link</span>
       </a>
 
-      <nav class="main-nav" role="tablist" aria-label="TimeBridge sections">
+      <nav class="main-nav" role="tablist" aria-label="TimeBridge Link sections">
         <a href="#home" role="tab" data-route="home">Home</a>
         <a href="#calculator" role="tab" data-route="calculator">Calculator</a>
         <a href="#clocks" role="tab" data-route="clocks">World clock</a>
@@ -35,32 +37,97 @@
       </nav>
 
       <a class="github-link" href="https://github.com/saisrivatsat/timebridge" target="_blank" rel="noreferrer">
-        GitHub <span aria-hidden="true">↗</span>
+        GitHub
       </a>
     </header>
 
     <main id="app-content">
       <section class="app-page home-page" data-page="home" role="tabpanel" aria-label="Home">
-        <div class="hero home-hero">
+        <section class="home-live" aria-labelledby="home-time-title">
           <p class="eyebrow">One world · many local times</p>
-          <h1>Time anywhere,<br /><em>without the math.</em></h1>
-          <p class="hero-copy">
-            Check the time there, understand the label, and find a considerate hour to connect.
-          </p>
-        </div>
+
+          <div class="home-time-grid">
+            <div class="home-primary-time">
+              <h1 id="home-time-title">Your time</h1>
+              <p id="home-clock" class="home-clock" aria-label="Your current time">
+                <span id="home-clock-hour">--:--</span>
+                <span id="home-clock-period">--</span>
+              </p>
+              <p class="home-place-line">
+                <span id="home-place">Your time zone</span>
+                <span aria-hidden="true">·</span>
+                <span id="home-zone-label">UTC</span>
+              </p>
+              <p id="home-date" class="home-date">Finding your local date…</p>
+            </div>
+
+            <article class="interesting-time" aria-labelledby="interesting-place">
+              <p class="step-label">Meanwhile in</p>
+              <h2 id="interesting-place">Somewhere interesting</h2>
+              <p class="interesting-clock">
+                <span id="interesting-clock-time">--:--</span>
+                <span id="interesting-clock-period">--</span>
+              </p>
+              <p class="interesting-meta">
+                <span id="interesting-zone-label">UTC</span>
+                <span aria-hidden="true">·</span>
+                <span id="interesting-date">Today</span>
+              </p>
+              <p id="interesting-insight" class="interesting-insight">A different part of the day is unfolding there.</p>
+              <button id="another-place" class="quiet-button" type="button">Show another place</button>
+            </article>
+          </div>
+
+          <div class="day-guide" aria-labelledby="day-guide-title">
+            <div class="day-guide-heading">
+              <h2 id="day-guide-title">Your day at a glance</h2>
+              <p><span id="home-phase">Current phase</span> · the marker moves with your local time</p>
+            </div>
+            <div class="day-hours" aria-hidden="true">
+              <span>12 AM</span><span>3 AM</span><span>6 AM</span><span>9 AM</span>
+              <span>12 PM</span><span>3 PM</span><span>6 PM</span><span>9 PM</span><span>12 AM</span>
+            </div>
+            <div id="day-track" class="day-track" role="img" aria-label="A 24-hour guide showing your current local time">
+              <span class="day-segment day-segment-night">Night</span>
+              <span class="day-segment day-segment-day">Day</span>
+              <span class="day-segment day-segment-night">Night</span>
+              <output id="home-now-marker" class="home-now-marker" aria-label="Now">Now</output>
+            </div>
+          </div>
+
+          <section class="location-choice" aria-labelledby="location-title">
+            <div>
+              <p class="step-label">Make it yours</p>
+              <h2 id="location-title">Want the right place name?</h2>
+              <p>Use your approximate location once, or choose a city. Your coordinates never leave this page and are never stored.</p>
+            </div>
+            <div class="location-actions">
+              <button id="use-location" class="location-button" type="button">Use my location</button>
+              <button id="choose-location" class="secondary-location-button" type="button" aria-expanded="false" aria-controls="manual-location">Choose a city</button>
+            </div>
+            <form id="manual-location" class="manual-location" hidden>
+              <label for="home-city">
+                <span>City or time zone</span>
+                <input id="home-city" list="friendly-timezones" placeholder="Try Chicago, Hyderabad, or Europe/London" />
+              </label>
+              <button class="primary-button" type="submit">Set my time</button>
+            </form>
+            <p id="location-status" class="location-status" aria-live="polite"></p>
+          </section>
+        </section>
 
         <section class="quick-converter" aria-labelledby="quick-title">
           <div class="quick-copy">
-            <p class="step-label">Quick answer</p>
-            <h2 id="quick-title">I’m here. What time is it there?</h2>
-            <p>Choose two locations. TimeBridge handles the date, offset, and daylight-saving label.</p>
+            <p class="step-label">Quick convert</p>
+            <h2 id="quick-title">Convert time between places.</h2>
+            <p>For detailed planning, open the Calculator tab.</p>
           </div>
           <div class="quick-form">
             <label for="quick-from-zone">
               <span>I am in</span>
               <input id="quick-from-zone" list="friendly-timezones" placeholder="Choose a city or time zone" />
             </label>
-            <button id="swap-quick-zones" class="swap-button" type="button" aria-label="Swap locations">⇄</button>
+            <button id="swap-quick-zones" class="swap-button" type="button" aria-label="Swap locations">Swap</button>
             <label for="quick-to-zone">
               <span>I need the time in</span>
               <input id="quick-to-zone" list="friendly-timezones" placeholder="Choose a city or time zone" />
@@ -72,23 +139,6 @@
             <button id="convert-time" class="primary-button" type="button">Convert time</button>
           </div>
           <div id="quick-result" class="quick-result" aria-live="polite"></div>
-        </section>
-
-        <section class="us-now" aria-labelledby="us-now-title">
-          <div class="page-heading compact-heading">
-            <div>
-              <p class="eyebrow">Live United States snapshot</p>
-              <h2 id="us-now-title">EST or EDT? CST or CDT?</h2>
-            </div>
-            <p>The label changes automatically with the selected date and daylight-saving rules.</p>
-          </div>
-          <div id="us-clock-strip" class="us-clock-strip"></div>
-        </section>
-
-        <section class="principles" aria-label="Product principles">
-          <article><span>◷</span><h3>Live and date-aware</h3><p>Abbreviations and UTC offsets follow the actual date.</p></article>
-          <article><span>◇</span><h3>Privacy-first</h3><p>Calculations stay in your browser with no account or tracking.</p></article>
-          <article><span>⌁</span><h3>Globally useful</h3><p>Uses standard IANA zones instead of ambiguous fixed offsets.</p></article>
         </section>
       </section>
 
@@ -317,7 +367,7 @@
             <div role="row"><strong role="cell">Mountain</strong><span role="cell">MT</span><span role="cell">MST · UTC−7</span><span role="cell">MDT · UTC−6</span></div>
             <div role="row"><strong role="cell">Pacific</strong><span role="cell">PT</span><span role="cell">PST · UTC−8</span><span role="cell">PDT · UTC−7</span></div>
           </div>
-          <p class="abbreviation-note">Abbreviations are not globally unique—CST can refer to Central Standard Time or China Standard Time. TimeBridge calculates with region/city identifiers such as <code>America/Chicago</code>.</p>
+          <p class="abbreviation-note">Abbreviations are not globally unique—CST can refer to Central Standard Time or China Standard Time. TimeBridge Link calculates with region/city identifiers such as <code>America/Chicago</code>.</p>
           <a class="source-link" href="https://www.nist.gov/pml/time-and-frequency-division/local-time-faqs" target="_blank" rel="noreferrer">Source: NIST Local Time FAQs ↗</a>
         </section>
 

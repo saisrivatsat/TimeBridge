@@ -12,28 +12,37 @@ import {
 } from "./time.js";
 
 const LOCATIONS = [
-  { name: "New York", zone: "America/New_York", detail: "Eastern Time", aliases: ["est", "edt", "et"] },
-  { name: "Chicago", zone: "America/Chicago", detail: "Central Time", aliases: ["cst", "cdt", "ct"] },
-  { name: "Denver", zone: "America/Denver", detail: "Mountain Time", aliases: ["mst", "mdt", "mt"] },
-  { name: "Los Angeles", zone: "America/Los_Angeles", detail: "Pacific Time", aliases: ["san francisco", "seattle", "pst", "pdt", "pt"] },
-  { name: "Phoenix", zone: "America/Phoenix", detail: "Mountain Standard Time", aliases: ["arizona"] },
-  { name: "Toronto", zone: "America/Toronto", detail: "Eastern Time", aliases: [] },
-  { name: "Vancouver", zone: "America/Vancouver", detail: "Pacific Time", aliases: [] },
-  { name: "Mexico City", zone: "America/Mexico_City", detail: "Central Mexico", aliases: [] },
-  { name: "São Paulo", zone: "America/Sao_Paulo", detail: "Brazil", aliases: ["sao paulo"] },
-  { name: "London", zone: "Europe/London", detail: "United Kingdom", aliases: ["gmt", "bst"] },
-  { name: "Paris", zone: "Europe/Paris", detail: "Central Europe", aliases: ["berlin", "rome", "madrid", "cet", "cest"] },
-  { name: "Hyderabad", zone: "Asia/Kolkata", detail: "India Standard Time", aliases: ["india", "kolkata", "mumbai", "delhi", "bengaluru", "bangalore", "ist"] },
-  { name: "Dubai", zone: "Asia/Dubai", detail: "Gulf Standard Time", aliases: ["gst"] },
-  { name: "Singapore", zone: "Asia/Singapore", detail: "Singapore Time", aliases: ["sgt"] },
-  { name: "Tokyo", zone: "Asia/Tokyo", detail: "Japan Standard Time", aliases: ["jst"] },
-  { name: "Shanghai", zone: "Asia/Shanghai", detail: "China Standard Time", aliases: ["beijing"] },
-  { name: "Sydney", zone: "Australia/Sydney", detail: "Eastern Australia", aliases: [] },
-  { name: "Auckland", zone: "Pacific/Auckland", detail: "New Zealand", aliases: [] },
+  { name: "New York", zone: "America/New_York", detail: "Eastern Time", aliases: ["est", "edt", "et"], latitude: 40.71, longitude: -74.01 },
+  { name: "Chicago", zone: "America/Chicago", detail: "Central Time", aliases: ["cst", "cdt", "ct"], latitude: 41.88, longitude: -87.63 },
+  { name: "Denver", zone: "America/Denver", detail: "Mountain Time", aliases: ["mst", "mdt", "mt"], latitude: 39.74, longitude: -104.99 },
+  { name: "Los Angeles", zone: "America/Los_Angeles", detail: "Pacific Time", aliases: ["san francisco", "seattle", "pst", "pdt", "pt"], latitude: 34.05, longitude: -118.24 },
+  { name: "Phoenix", zone: "America/Phoenix", detail: "Mountain Standard Time", aliases: ["arizona"], latitude: 33.45, longitude: -112.07 },
+  { name: "Toronto", zone: "America/Toronto", detail: "Eastern Time", aliases: [], latitude: 43.65, longitude: -79.38 },
+  { name: "Vancouver", zone: "America/Vancouver", detail: "Pacific Time", aliases: [], latitude: 49.28, longitude: -123.12 },
+  { name: "Mexico City", zone: "America/Mexico_City", detail: "Central Mexico", aliases: [], latitude: 19.43, longitude: -99.13 },
+  { name: "São Paulo", zone: "America/Sao_Paulo", detail: "Brazil", aliases: ["sao paulo"], latitude: -23.55, longitude: -46.63 },
+  { name: "London", zone: "Europe/London", detail: "United Kingdom", aliases: ["gmt", "bst"], latitude: 51.51, longitude: -0.13 },
+  { name: "Paris", zone: "Europe/Paris", detail: "Central Europe", aliases: ["berlin", "rome", "madrid", "cet", "cest"], latitude: 48.86, longitude: 2.35 },
+  { name: "Hyderabad", zone: "Asia/Kolkata", detail: "India Standard Time", aliases: ["india", "kolkata", "mumbai", "delhi", "bengaluru", "bangalore", "ist"], latitude: 17.39, longitude: 78.49 },
+  { name: "Dubai", zone: "Asia/Dubai", detail: "Gulf Standard Time", aliases: ["gst"], latitude: 25.20, longitude: 55.27 },
+  { name: "Singapore", zone: "Asia/Singapore", detail: "Singapore Time", aliases: ["sgt"], latitude: 1.35, longitude: 103.82 },
+  { name: "Tokyo", zone: "Asia/Tokyo", detail: "Japan Standard Time", aliases: ["jst"], latitude: 35.68, longitude: 139.69 },
+  { name: "Shanghai", zone: "Asia/Shanghai", detail: "China Standard Time", aliases: ["beijing"], latitude: 31.23, longitude: 121.47 },
+  { name: "Sydney", zone: "Australia/Sydney", detail: "Eastern Australia", aliases: [], latitude: -33.87, longitude: 151.21 },
+  { name: "Auckland", zone: "Pacific/Auckland", detail: "New Zealand", aliases: [], latitude: -36.85, longitude: 174.76 },
   { name: "UTC", zone: "UTC", detail: "Universal reference", aliases: ["universal time", "zulu"] },
 ];
 
-const US_ZONES = LOCATIONS.slice(0, 4);
+const INTERESTING_ZONES = [
+  "Asia/Kolkata",
+  "Asia/Tokyo",
+  "Australia/Sydney",
+  "Pacific/Auckland",
+  "Europe/London",
+  "Asia/Dubai",
+  "America/Sao_Paulo",
+];
+
 const elements = {
   navItems: [...document.querySelectorAll("[data-route]")],
   pages: [...document.querySelectorAll("[data-page]")],
@@ -44,7 +53,26 @@ const elements = {
   quickResult: document.querySelector("#quick-result"),
   convert: document.querySelector("#convert-time"),
   swap: document.querySelector("#swap-quick-zones"),
-  usClockStrip: document.querySelector("#us-clock-strip"),
+  homeClockHour: document.querySelector("#home-clock-hour"),
+  homeClockPeriod: document.querySelector("#home-clock-period"),
+  homePlace: document.querySelector("#home-place"),
+  homeZoneLabel: document.querySelector("#home-zone-label"),
+  homeDate: document.querySelector("#home-date"),
+  homePhase: document.querySelector("#home-phase"),
+  homeNowMarker: document.querySelector("#home-now-marker"),
+  dayTrack: document.querySelector("#day-track"),
+  interestingPlace: document.querySelector("#interesting-place"),
+  interestingClockTime: document.querySelector("#interesting-clock-time"),
+  interestingClockPeriod: document.querySelector("#interesting-clock-period"),
+  interestingZoneLabel: document.querySelector("#interesting-zone-label"),
+  interestingDate: document.querySelector("#interesting-date"),
+  interestingInsight: document.querySelector("#interesting-insight"),
+  anotherPlace: document.querySelector("#another-place"),
+  useLocation: document.querySelector("#use-location"),
+  chooseLocation: document.querySelector("#choose-location"),
+  manualLocation: document.querySelector("#manual-location"),
+  homeCity: document.querySelector("#home-city"),
+  locationStatus: document.querySelector("#location-status"),
   worldZone: document.querySelector("#world-zone"),
   addWorldClock: document.querySelector("#add-world-clock"),
   worldClockGrid: document.querySelector("#world-clock-grid"),
@@ -53,6 +81,9 @@ const elements = {
 };
 
 const detectedZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+let homeZone = detectedZone;
+let homePlaceName = friendlyName(detectedZone);
+let interestingIndex = 0;
 let worldZones = [...new Set([
   detectedZone,
   "America/New_York",
@@ -126,8 +157,8 @@ function setActivePage(route) {
     item.tabIndex = selected ? 0 : -1;
   });
   document.title = validRoute === "home"
-    ? "TimeBridge — understand time anywhere"
-    : `${elements.navItems.find(({ dataset }) => dataset.route === validRoute)?.textContent} · TimeBridge`;
+    ? "TimeBridge Link — understand time anywhere"
+    : `${elements.navItems.find(({ dataset }) => dataset.route === validRoute)?.textContent} · TimeBridge Link`;
 }
 
 function initializeNavigation() {
@@ -238,6 +269,20 @@ function timeWithSeconds(date, timeZone) {
   }).format(date);
 }
 
+function clockParts(date, timeZone) {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  }).formatToParts(date);
+  const value = (type) => parts.find((part) => part.type === type)?.value ?? "";
+  return {
+    time: `${value("hour")}:${value("minute")}`,
+    period: value("dayPeriod"),
+  };
+}
+
 function phaseForHour(hour) {
   if (hour < 5 || hour >= 22) return { name: "Night", className: "night" };
   if (hour < 12) return { name: "Morning", className: "morning" };
@@ -245,24 +290,181 @@ function phaseForHour(hour) {
   return { name: "Evening", className: "evening" };
 }
 
-function renderUsClocks() {
+function describeMoment(hour) {
+  if (hour < 5) return "Most of the city is winding down there.";
+  if (hour < 9) return "The day is getting started there.";
+  if (hour < 12) return "The morning is well underway there.";
+  if (hour < 14) return "It is around lunchtime there.";
+  if (hour < 18) return "The afternoon is moving there.";
+  if (hour < 22) return "Evening has arrived there.";
+  return "The city is settling into night.";
+}
+
+function dayNumber(date) {
+  return Math.floor(Date.UTC(
+    date.getUTCFullYear(),
+    date.getUTCMonth(),
+    date.getUTCDate(),
+  ) / (24 * 60 * 60 * 1000));
+}
+
+function getInterestingLocation(date) {
+  const sourceOffset = getUtcOffsetMinutes(date, homeZone);
+  const candidates = INTERESTING_ZONES
+    .filter((zone) => zone !== homeZone)
+    .map((zone) => {
+      const rawDifference = Math.abs(getUtcOffsetMinutes(date, zone) - sourceOffset);
+      return {
+        location: findLocationForZone(zone),
+        difference: Math.min(rawDifference, 24 * 60 - rawDifference),
+      };
+    })
+    .sort((first, second) => second.difference - first.difference)
+    .slice(0, 5);
+
+  return candidates[(dayNumber(date) + interestingIndex) % candidates.length]?.location
+    ?? findLocationForZone("UTC");
+}
+
+function renderHomeExperience() {
   const now = new Date();
-  const fragment = document.createDocumentFragment();
-  US_ZONES.forEach(({ name, zone, detail }) => {
-    const card = document.createElement("article");
-    card.className = "us-clock-card";
-    const label = document.createElement("span");
-    label.textContent = detail;
-    const abbreviation = document.createElement("strong");
-    abbreviation.textContent = formatZoneAbbreviation(now, zone);
-    const time = document.createElement("p");
-    time.textContent = timeWithSeconds(now, zone);
-    const meta = document.createElement("small");
-    meta.textContent = `${name} · ${formatOffset(now, zone)}`;
-    card.append(label, abbreviation, time, meta);
-    fragment.append(card);
+  const localParts = clockParts(now, homeZone);
+  const localZonedParts = getZonedParts(now, homeZone);
+  const localPhase = phaseForHour(localZonedParts.hour);
+  const localMinute = localZonedParts.hour * 60 + localZonedParts.minute;
+  const markerPosition = Math.max(2.5, Math.min(97.5, (localMinute / (24 * 60)) * 100));
+
+  elements.homeClockHour.textContent = localParts.time;
+  elements.homeClockPeriod.textContent = localParts.period;
+  elements.homePlace.textContent = homePlaceName;
+  elements.homeZoneLabel.textContent = formatZoneAbbreviation(now, homeZone);
+  elements.homeDate.textContent = formatFullDate(now, homeZone);
+  elements.homePhase.textContent = localPhase.name;
+  elements.homeNowMarker.style.left = `${markerPosition}%`;
+  elements.dayTrack.setAttribute(
+    "aria-label",
+    `A 24-hour guide. It is ${formatTime(now, homeZone)} in ${homePlaceName}.`,
+  );
+
+  const interesting = getInterestingLocation(now);
+  const comparisonParts = clockParts(now, interesting.zone);
+  const comparisonZonedParts = getZonedParts(now, interesting.zone);
+  elements.interestingPlace.textContent = interesting.name;
+  elements.interestingClockTime.textContent = comparisonParts.time;
+  elements.interestingClockPeriod.textContent = comparisonParts.period;
+  elements.interestingZoneLabel.textContent = formatZoneAbbreviation(now, interesting.zone);
+  elements.interestingDate.textContent = describeDateRelation(now, homeZone, interesting.zone);
+  elements.interestingInsight.textContent = describeMoment(comparisonZonedParts.hour);
+}
+
+function distanceInKilometers(firstLatitude, firstLongitude, secondLatitude, secondLongitude) {
+  const radians = (degrees) => degrees * (Math.PI / 180);
+  const latitudeDistance = radians(secondLatitude - firstLatitude);
+  const longitudeDistance = radians(secondLongitude - firstLongitude);
+  const firstLatitudeRadians = radians(firstLatitude);
+  const secondLatitudeRadians = radians(secondLatitude);
+  const a = Math.sin(latitudeDistance / 2) ** 2
+    + Math.cos(firstLatitudeRadians) * Math.cos(secondLatitudeRadians)
+    * Math.sin(longitudeDistance / 2) ** 2;
+  return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function findNearestSupportedLocation(latitude, longitude) {
+  return LOCATIONS
+    .filter((location) => Number.isFinite(location.latitude) && Number.isFinite(location.longitude))
+    .map((location) => ({
+      location,
+      distance: distanceInKilometers(
+        latitude,
+        longitude,
+        location.latitude,
+        location.longitude,
+      ),
+    }))
+    .sort((first, second) => first.distance - second.distance)[0];
+}
+
+function setHomeLocation(timeZone, name, status) {
+  homeZone = timeZone;
+  homePlaceName = name;
+  interestingIndex = 0;
+  elements.quickFrom.value = name;
+  elements.quickDateTime.value = toLocalInputValue(new Date(), timeZone);
+  elements.locationStatus.textContent = status;
+  renderHomeExperience();
+}
+
+function requestApproximateLocation() {
+  if (!navigator.geolocation) {
+    elements.locationStatus.textContent = "Location access is unavailable here. Choose a city instead.";
+    return;
+  }
+
+  elements.useLocation.setAttribute("aria-busy", "true");
+  elements.useLocation.disabled = true;
+  elements.useLocation.textContent = "Finding your place…";
+  elements.locationStatus.textContent = "Your browser will ask before sharing an approximate location.";
+
+  navigator.geolocation.getCurrentPosition(
+    ({ coords }) => {
+      const nearest = findNearestSupportedLocation(coords.latitude, coords.longitude);
+      const closeEnough = nearest && nearest.distance <= 300;
+      const location = closeEnough ? nearest.location : findLocationForZone(detectedZone);
+      const timeZone = location?.zone ?? detectedZone;
+      const name = closeEnough ? nearest.location.name : friendlyName(timeZone);
+      const status = closeEnough
+        ? `Approximate location set to ${name}. Your coordinates were used once and not stored.`
+        : `Location allowed. Showing ${name} from your device time zone; your coordinates were not stored.`;
+      setHomeLocation(timeZone, name, status);
+      elements.useLocation.removeAttribute("aria-busy");
+      elements.useLocation.disabled = false;
+      elements.useLocation.textContent = "Location updated";
+    },
+    (error) => {
+      const message = error.code === error.PERMISSION_DENIED
+        ? "Location was not shared. Choose a city instead—everything still works."
+        : "We could not read your approximate location. Choose a city instead.";
+      elements.locationStatus.textContent = message;
+      elements.useLocation.removeAttribute("aria-busy");
+      elements.useLocation.disabled = false;
+      elements.useLocation.textContent = "Try location again";
+    },
+    { enableHighAccuracy: false, timeout: 8000, maximumAge: 10 * 60 * 1000 },
+  );
+}
+
+function initializeHomeExperience() {
+  elements.locationStatus.textContent = "Showing your device time zone. Exact location has not been requested.";
+  elements.useLocation.addEventListener("click", requestApproximateLocation);
+  elements.chooseLocation.addEventListener("click", () => {
+    const shouldOpen = elements.manualLocation.hidden;
+    elements.manualLocation.hidden = !shouldOpen;
+    elements.chooseLocation.setAttribute("aria-expanded", String(shouldOpen));
+    elements.chooseLocation.textContent = shouldOpen ? "Close city chooser" : "Choose a city";
+    if (shouldOpen) elements.homeCity.focus();
   });
-  elements.usClockStrip.replaceChildren(fragment);
+  elements.manualLocation.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const timeZone = resolveTimeZone(elements.homeCity.value);
+    if (!timeZone) {
+      elements.locationStatus.textContent = "Choose a recognized city or IANA time zone.";
+      elements.homeCity.setAttribute("aria-invalid", "true");
+      return;
+    }
+    elements.homeCity.removeAttribute("aria-invalid");
+    const name = friendlyName(timeZone);
+    setHomeLocation(timeZone, name, `Using ${name} on this page only.`);
+    elements.manualLocation.hidden = true;
+    elements.chooseLocation.setAttribute("aria-expanded", "false");
+    elements.chooseLocation.textContent = "Choose a city";
+  });
+  elements.anotherPlace.addEventListener("click", () => {
+    interestingIndex += 1;
+    const next = getInterestingLocation(new Date());
+    elements.quickTo.value = next.name;
+    renderHomeExperience();
+  });
+  renderHomeExperience();
 }
 
 function renderWorldClocks() {
@@ -383,9 +585,10 @@ function renderLiveChart() {
 }
 
 function initializeQuickConverter() {
-  elements.quickFrom.value = friendlyName(detectedZone);
-  elements.quickTo.value = detectedZone === "Asia/Kolkata" ? "Chicago" : "Hyderabad";
-  elements.quickDateTime.value = toLocalInputValue(new Date(), detectedZone);
+  const initialComparison = getInterestingLocation(new Date());
+  elements.quickFrom.value = homePlaceName;
+  elements.quickTo.value = initialComparison.name;
+  elements.quickDateTime.value = toLocalInputValue(new Date(), homeZone);
   elements.convert.addEventListener("click", convertQuickTime);
   elements.swap.addEventListener("click", () => {
     const previousFrom = elements.quickFrom.value;
@@ -400,22 +603,21 @@ function initializeQuickConverter() {
   [elements.quickFrom, elements.quickTo, elements.quickDateTime].forEach((input) => {
     input.addEventListener("change", convertQuickTime);
   });
-  convertQuickTime();
 }
 
 function initialize() {
   populateFriendlyTimeZones();
   initializeNavigation();
+  initializeHomeExperience();
   initializeQuickConverter();
   elements.addWorldClock.addEventListener("click", addWorldClock);
   elements.worldZone.addEventListener("keydown", (event) => {
     if (event.key === "Enter") addWorldClock();
   });
-  renderUsClocks();
   renderWorldClocks();
   renderLiveChart();
   window.setInterval(() => {
-    renderUsClocks();
+    renderHomeExperience();
     renderWorldClocks();
   }, 1000);
   window.setInterval(renderLiveChart, 60 * 1000);

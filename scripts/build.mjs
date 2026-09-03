@@ -12,4 +12,4 @@ await Promise.all([
   cp(new URL("src/", root), new URL("src/", output), { recursive: true }),
 ]);
 
-console.log("Built TimeBridge into dist/");
+console.log("Built TimeBridge Link into dist/");

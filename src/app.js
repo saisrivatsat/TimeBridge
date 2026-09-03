@@ -289,7 +289,7 @@ function meetingSummary(candidate) {
   const lines = locations.map((location) =>
     `${location.name}: ${formatDay(candidate.start, location.timeZone)}, ${formatTime(candidate.start, location.timeZone)}–${formatTime(candidate.end, location.timeZone)}`,
   );
-  return [heading, ...lines, "Planned with TimeBridge"].join("\n");
+  return [heading, ...lines, "Planned with TimeBridge Link"].join("\n");
 }
 
 async function copyMeeting(candidate) {
@@ -433,7 +433,7 @@ async function copyWeeklyRotation() {
   if (!latestRotation?.meetings.length) return;
 
   const lines = [
-    `TimeBridge weekly rotation · ${formatDuration(Number(elements.duration.value))} each`,
+    `TimeBridge Link weekly rotation · ${formatDuration(Number(elements.duration.value))} each`,
     "",
   ];
   latestRotation.meetings.forEach((meeting) => {

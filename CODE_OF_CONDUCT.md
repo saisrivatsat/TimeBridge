@@ -1,6 +1,6 @@
 # Code of Conduct
 
-TimeBridge is a welcoming project. Be respectful, assume good intent, discuss
+TimeBridge Link is a welcoming project. Be respectful, assume good intent, discuss
 ideas rather than people, and make room for contributors with different levels
 of experience and different ways of communicating.
 

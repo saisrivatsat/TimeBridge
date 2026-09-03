@@ -16,7 +16,7 @@ wants to be contacted.
 
 ## Promise
 
-TimeBridge turns local availability into a shared, human-readable calling
+TimeBridge Link turns local availability into a shared, human-readable calling
 window in under one minute, without requiring an account.
 
 ## Version 0.1 success criteria
